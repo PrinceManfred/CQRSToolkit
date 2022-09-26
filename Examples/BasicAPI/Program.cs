@@ -1,7 +1,4 @@
-﻿using BasicAPI.Features.Commands;
-using BasicAPI.Features.Queries;
-using BasicAPI.Models;
-using CQRSToolkit;
+﻿using CQRSToolkit.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +8,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient(typeof(IQueryHandler<GetDudeQuery, Dude>), typeof(GetDudeQueryHandler));
-builder.Services.AddTransient(typeof(ICommandHandler<SetDudeCommand>), typeof(SetDudeCommandHandler));
+builder.Services.AddCQRSToolkitGenerated();
 
 var app = builder.Build();
 

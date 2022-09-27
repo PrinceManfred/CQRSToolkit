@@ -1,0 +1,7 @@
+﻿<Project>
+	<ItemGroup>
+		<CompilerVisibleProperty Include="CQRSToolkit_DIGen_AccessModifier" />
+		<CompilerVisibleProperty Include="CQRSToolkit_DIGen_ClassName" />
+		<CompilerVisibleProperty Include="CQRSToolkit_DIGen_Namespace" />
+	</ItemGroup>
+</Project>

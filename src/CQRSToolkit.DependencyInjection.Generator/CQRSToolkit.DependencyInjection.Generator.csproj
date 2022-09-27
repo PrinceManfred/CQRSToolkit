@@ -15,6 +15,7 @@
     <Description>A source generator to inject all CQRSToolkit handlers with a single method call.</Description>
     <Copyright>Copyright Travis Carter</Copyright>
     <PackageProjectUrl>https://github.com/PrinceManfred/CQRSToolkit</PackageProjectUrl>
+	<NoWarn>NU5128</NoWarn>
   </PropertyGroup>
 	
   <ItemGroup>
@@ -27,9 +28,12 @@
 
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	<!-- Package the props file -->
+	<None Include="*.props" Pack="true" PackagePath="build" Visible="true" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CQRSToolkit\CQRSToolkit.csproj" />
   </ItemGroup>
+
 </Project>

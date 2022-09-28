@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicAPI", "Examples\BasicA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CQRSToolkit.DependencyInjection.Generator", "src\CQRSToolkit.DependencyInjection.Generator\CQRSToolkit.DependencyInjection.Generator.csproj", "{14103DC6-BB6F-4A90-ADF5-1E8AE4CBC4A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRSToolkit.DependencyInjection.Generator.Attributes", "src\CQRSToolkit.DependencyInjection.Generator.Attributes\CQRSToolkit.DependencyInjection.Generator.Attributes.csproj", "{107BE09E-6764-4A37-A7A6-0AF71F8293F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{14103DC6-BB6F-4A90-ADF5-1E8AE4CBC4A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14103DC6-BB6F-4A90-ADF5-1E8AE4CBC4A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14103DC6-BB6F-4A90-ADF5-1E8AE4CBC4A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{107BE09E-6764-4A37-A7A6-0AF71F8293F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{107BE09E-6764-4A37-A7A6-0AF71F8293F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{107BE09E-6764-4A37-A7A6-0AF71F8293F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{107BE09E-6764-4A37-A7A6-0AF71F8293F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CQRSToolkit.DependencyInjection.Generator.Attributes\CQRSToolkit.DependencyInjection.Generator.Attributes.csproj" />
     <ProjectReference Include="..\CQRSToolkit\CQRSToolkit.csproj" />
   </ItemGroup>
 

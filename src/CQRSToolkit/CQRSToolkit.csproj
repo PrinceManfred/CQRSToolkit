@@ -5,14 +5,7 @@
 	<LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>CQRS Toolkit</Title>
-    <Version>0.1.0</Version>
-    <Authors>PrinceManfred</Authors>
     <Description>A toolkit for implementing CQRS.</Description>
-    <Copyright>Copyright Travis Carter</Copyright>
-    <PackageProjectUrl>https://github.com/PrinceManfred/CQRSToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/PrinceManfred/CQRSToolkit</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
 </Project>

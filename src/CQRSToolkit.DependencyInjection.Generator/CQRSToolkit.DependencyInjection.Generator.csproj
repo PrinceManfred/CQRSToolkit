@@ -6,13 +6,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<IncludeBuildOutput>false</IncludeBuildOutput>
     <Title>CQRS Toolkit Dependency Injection Generator</Title>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Version>0.1.0</Version>
-    <Authors>PrinceManfred</Authors>
     <Description>A source generator to inject all CQRSToolkit handlers with a single method call.</Description>
-    <Copyright>Copyright Travis Carter</Copyright>
-    <PackageProjectUrl>https://github.com/PrinceManfred/CQRSToolkit</PackageProjectUrl>
 	<NoWarn>NU5128</NoWarn>
   </PropertyGroup>
 	
@@ -31,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CQRSToolkit.DependencyInjection.Generator.Attributes\CQRSToolkit.DependencyInjection.Generator.Attributes.csproj" />
     <ProjectReference Include="..\CQRSToolkit\CQRSToolkit.csproj" />
   </ItemGroup>
 

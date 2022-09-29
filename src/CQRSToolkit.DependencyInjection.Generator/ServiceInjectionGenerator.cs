@@ -23,15 +23,25 @@ namespace CQRSToolkit.DependencyInjection.Generator
             CQRSToolkitSyntaxReceiver syntaxReceiver = (CQRSToolkitSyntaxReceiver)context.SyntaxReceiver;
             if (syntaxReceiver is null) return;
 
-            var injections = GetInjections(syntaxReceiver.Classes, context.Compilation);
-            if(injections.Length == 0) return;
+            var injectionStubs = GetInjections(syntaxReceiver.Classes, context.Compilation);
+            if(injectionStubs.Count == 0) return;
 
-            if (TryGenerateMethods(syntaxReceiver.Methods, context, injections)) return;
+            if (TryGenerateMethods(syntaxReceiver.Methods, context, injectionStubs)) return;
 
-            string source = SourceTemplate.GenerateSource(outNamespace, accessModifier, className,
-                accessModifier, "AddCQRSToolkitGenerated",
-                "Microsoft.Extensions.DependencyInjection.ServiceLifetime defaultLifetime = ServiceLifetime.Transient",
-                injections, false);
+            var injectionsBuilder = new StringBuilder();
+            foreach (var injectionStub in injectionStubs)
+            {
+                injectionsBuilder.AppendLine($"\t\t\tservices.Add(new ServiceDescriptor({injectionStub}), defaultLifetime));");
+            }
+
+            string source = SourceTemplate.GenerateSource(outNamespace,
+                accessModifier,
+                className,
+                accessModifier,
+                "AddCQRSToolkitGenerated",
+                "services",
+                "defaultLifetime = Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient",
+                injectionsBuilder.ToString(), false);
 
             context.AddSource("CQRSToolkit.DependencyInjection.Generator.g.cs", source);
         }
@@ -42,9 +52,9 @@ namespace CQRSToolkit.DependencyInjection.Generator
         }
 
         #region Private Methods
-        private string GetInjections(IEnumerable<ClassDeclarationSyntax> classes, Compilation compilation)
+        private List<string> GetInjections(IEnumerable<ClassDeclarationSyntax> classes, Compilation compilation)
         {
-            var injections = new StringBuilder();
+            var injections = new List<string>();
             foreach (var target in classes)
             {
                 var model = compilation.GetSemanticModel(target.SyntaxTree);
@@ -58,32 +68,133 @@ namespace CQRSToolkit.DependencyInjection.Generator
                     || constructedName == "CQRSToolkit.ICommandHandler<TCommand>"
                     || constructedName == "ICommandResponseHandler<TCommand, TResponse>")
                     {
-                        injections.AppendLine($"\t\t\tservices.Add(new ServiceDescriptor(typeof({candidate}), typeof({info}), defaultLifetime));");
+                        injections.Add($"typeof({candidate}), typeof({info}");
                     }
                 }
             }
 
-            return injections.ToString();
+            return injections;
         }
 
-        private bool TryGenerateMethods(IEnumerable<MethodDeclarationSyntax> methods, GeneratorExecutionContext context, string injections)
+        private bool TryGenerateMethods(IEnumerable<MethodDeclarationSyntax> methods, GeneratorExecutionContext context, IEnumerable<string> injectionStubs)
         {
-            bool hadMethod = false;
+            bool hasMethod = false;
+
             foreach (var method in methods)
             {
                 var model = context.Compilation.GetSemanticModel(method.SyntaxTree);
 
+                #region Validate Method Declaration
                 if (!(model.GetDeclaredSymbol(method) is IMethodSymbol info)) continue;
-                if (!info.IsPartialDefinition || !info.IsStatic || info.IsVirtual || info.IsAbstract || info.IsAsync) continue;
-                if (info.Parameters.Length != 2
-                    || info.Parameters[0].ToString() != "Microsoft.Extensions.DependencyInjection.IServiceCollection"
-                    || info.Parameters[0].Name != "services"
-                    || info.Parameters[1].ToString() != "Microsoft.Extensions.DependencyInjection.ServiceLifetime"
-                    || info.Parameters[1].Name != "defaultLifetime") continue;
 
-                if (info.ReturnType.ToString() != "Microsoft.Extensions.DependencyInjection.IServiceCollection") continue;
+                // Check if ServiceInjectionPointAttribute is present on method
+                bool isTarget = false;
+                foreach (var attribute in info.GetAttributes())
+                {
+                    if (attribute.ToString() == "CQRSToolkit.DependencyInjection.Generator.Attributes.ServiceInjectionPointAttribute")
+                    {
+                        isTarget = true;
+                        break;
+                    }
+                }
+                if (!isTarget) continue;
 
-                // Invalid extension method access levels
+                if (!info.IsPartialDefinition)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "CQRSDI0001",
+                            "Method must be partial",
+                            "Method {0} must be an unimplemented \"partial\" method to use ServiceInjectionPointAttribute.",
+                            "CQRSToolkit.Generator",
+                            DiagnosticSeverity.Warning,
+                            true), info.Locations.FirstOrDefault(), info.Name));
+                    continue;
+                }
+
+                if (info.PartialImplementationPart != null)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "CQRSDI0002",
+                            "Method can not have an implementation",
+                            "Method {0} must not have an implementation provided to use ServiceInjectionPointAttribute.",
+                            "CQRSToolkit.Generator",
+                            DiagnosticSeverity.Warning,
+                            true), info.PartialImplementationPart.Locations.FirstOrDefault(), info.Name));
+                    continue;
+                }
+
+                if (!info.IsExtensionMethod)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "CQRSDI0003",
+                            "Must be an extension method",
+                            "Method {0} must be an extension method to use ServiceInjectionPointAttribute.",
+                            "CQRSToolkit.Generator",
+                            DiagnosticSeverity.Warning,
+                            true), info.Locations.FirstOrDefault(), info.Name));
+                    continue;
+                }
+                
+                // These shouldn't be possible on an extension method but checking just in case.
+                if (info.IsVirtual || info.IsAbstract || info.IsAsync) continue;
+
+                if (info.Parameters.Length != 2)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "CQRSDI0004",
+                            "Invalid parameter count",
+                            "Method {0} signature must match (this IServiceCollection, ServiceLifetime) to use ServiceInjectionPointAttribute.",
+                            "CQRSToolkit.Generator",
+                            DiagnosticSeverity.Warning,
+                            true), info.Locations.FirstOrDefault(), info.Name));
+                    continue;
+                }
+                
+                if (info.Parameters[0].ToString() != "Microsoft.Extensions.DependencyInjection.IServiceCollection")
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "CQRSDI0005",
+                            "Invalid parameter type",
+                            "Parameter \"{0}\" must be of type \"IServiceCollection\" to use ServiceInjectionPointAttribute.",
+                            "CQRSToolkit.Generator",
+                            DiagnosticSeverity.Warning,
+                            true), info.Parameters[0].Locations.FirstOrDefault(), info.Parameters[0].Name));
+                    continue;
+                }
+
+                if (info.Parameters[1].ToString() != "Microsoft.Extensions.DependencyInjection.ServiceLifetime")
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "CQRSDI0006",
+                            "Invalid parameter type",
+                            "Parameter \"{0}\" must be of type \"ServiceLifetime\" to use ServiceInjectionPointAttribute.",
+                            "CQRSToolkit.Generator",
+                            DiagnosticSeverity.Warning,
+                            true), info.Parameters[1].Locations.FirstOrDefault(), info.Parameters[1].Name));
+                    continue;
+                }
+
+                if (info.ReturnType.ToString() != "Microsoft.Extensions.DependencyInjection.IServiceCollection")
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                       new DiagnosticDescriptor(
+                           "CQRSDI0006",
+                           "Invalid parameter type",
+                           "Return type must be \"IServiceCollection\" to use ServiceInjectionPointAttribute.",
+                           "CQRSToolkit.Generator",
+                           DiagnosticSeverity.Warning,
+                           true), info.Locations.FirstOrDefault()));
+                    continue;
+                }
+
+                // Invalid extension method access levels. Compiler should already show a good error for this.
+                // This check may not actually even be needed.
                 switch (info.DeclaredAccessibility)
                 {
                     case Accessibility.ProtectedAndInternal:
@@ -91,22 +202,16 @@ namespace CQRSToolkit.DependencyInjection.Generator
                     case Accessibility.ProtectedOrInternal:
                         continue;
                 }
+                #endregion
 
-                foreach (var attribute in info.GetAttributes())
-                {
-                    if(attribute.ToString() == "CQRSToolkit.DependencyInjection.Generator.Attributes.ServiceInjectionPointAttribute")
-                    {
-                        hadMethod = true;
-                        ProcessMethod(context, info, injections);
-                        break;
-                    }
-                }
+                hasMethod = true;
+                ProcessMethod(context, info, injectionStubs);
             }
 
-            return hadMethod;
+            return hasMethod;
         }
 
-        private void ProcessMethod(GeneratorExecutionContext context, IMethodSymbol method, string injections)
+        private void ProcessMethod(GeneratorExecutionContext context, IMethodSymbol method, IEnumerable<string> injectionStubs)
         {
             string methodModifier;
             switch (method.DeclaredAccessibility)
@@ -142,11 +247,17 @@ namespace CQRSToolkit.DependencyInjection.Generator
             string outNamespace = method.ContainingNamespace.ToString();
             string className = method.ContainingType.Name;
             string methodName = method.Name;
-            string lifetimeParam = method.Parameters[1].HasExplicitDefaultValue ? 
-                "Microsoft.Extensions.DependencyInjection.ServiceLifetime defaultLifetime" :
-                "Microsoft.Extensions.DependencyInjection.ServiceLifetime defaultLifetime = ServiceLifetime.Transient";
+            string servicesParam = method.Parameters[0].Name;
+            string lifetimeParam = method.Parameters[1].Name;
+
+            var injectionsBuilder = new StringBuilder();
+            foreach (var injectionStub in injectionStubs)
+            {
+                injectionsBuilder.AppendLine($"\t\t\t{servicesParam}.Add(new ServiceDescriptor({injectionStub}), {lifetimeParam}));");
+            }
+
             string source = SourceTemplate.GenerateSource(outNamespace, classAccessModifier, className,
-                methodModifier, methodName, lifetimeParam, injections);
+                methodModifier, methodName, servicesParam, lifetimeParam, injectionsBuilder.ToString());
 
             context.AddSource($"{outNamespace}.{className}.{methodName}.g.cs", source);
         }
@@ -217,7 +328,6 @@ namespace CQRSToolkit.DependencyInjection.Generator
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
-            // Business logic to decide what we're interested in goes here
             if (syntaxNode is ClassDeclarationSyntax cds)
             {
                 Classes.Add(cds);

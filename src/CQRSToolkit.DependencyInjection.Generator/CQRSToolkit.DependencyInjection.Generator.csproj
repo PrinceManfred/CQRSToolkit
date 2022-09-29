@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<Nullable>enable</Nullable>
 	<IsRoslynComponent>true</IsRoslynComponent>
-	<LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<IncludeBuildOutput>false</IncludeBuildOutput>
     <Title>CQRS Toolkit Dependency Injection Generator</Title>

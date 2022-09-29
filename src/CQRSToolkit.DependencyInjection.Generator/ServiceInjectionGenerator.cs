@@ -20,7 +20,7 @@ namespace CQRSToolkit.DependencyInjection.Generator
             string className = GetClassName(globalOptions);
             string outNamespace = GetNamespace(globalOptions);
 
-            CQRSToolkitSyntaxReceiver? syntaxReceiver = (CQRSToolkitSyntaxReceiver?)context.SyntaxReceiver;
+            CQRSToolkitSyntaxReceiver syntaxReceiver = (CQRSToolkitSyntaxReceiver)context.SyntaxReceiver;
             if (syntaxReceiver is null) return;
 
             var injections = GetInjections(syntaxReceiver.Classes, context.Compilation);
@@ -48,7 +48,7 @@ namespace CQRSToolkit.DependencyInjection.Generator
             foreach (var target in classes)
             {
                 var model = compilation.GetSemanticModel(target.SyntaxTree);
-                if (model.GetDeclaredSymbol(target) is not INamedTypeSymbol info
+                if (!(model.GetDeclaredSymbol(target) is INamedTypeSymbol info)
                     || info.IsValueType || info.IsAbstract || info.IsUnboundGenericType || info.AllInterfaces.Length == 0) continue;
 
                 foreach (var candidate in info.AllInterfaces)
@@ -73,7 +73,7 @@ namespace CQRSToolkit.DependencyInjection.Generator
             {
                 var model = context.Compilation.GetSemanticModel(method.SyntaxTree);
 
-                if (model.GetDeclaredSymbol(method) is not IMethodSymbol info) continue;
+                if (!(model.GetDeclaredSymbol(method) is IMethodSymbol info)) continue;
                 if (!info.IsPartialDefinition || !info.IsStatic || info.IsVirtual || info.IsAbstract || info.IsAsync) continue;
                 if (info.Parameters.Length != 2
                     || info.Parameters[0].ToString() != "Microsoft.Extensions.DependencyInjection.IServiceCollection"
@@ -108,20 +108,35 @@ namespace CQRSToolkit.DependencyInjection.Generator
 
         private void ProcessMethod(GeneratorExecutionContext context, IMethodSymbol method, string injections)
         {
-            string methodModifier = method.DeclaredAccessibility switch
+            string methodModifier;
+            switch (method.DeclaredAccessibility)
             {
-                
-                Accessibility.Private => "private",
-                Accessibility.Internal => "internal",
-                Accessibility.Public => "public",
-                _ => ""
-            };
+                case Accessibility.Private:
+                    methodModifier = "private";
+                    break;
+                case Accessibility.Internal:
+                    methodModifier = "internal";
+                    break;
+                case Accessibility.Public:
+                    methodModifier = "public";
+                    break;
+                default:
+                    methodModifier = "";
+                    break;
+            }
 
-            string classAccessModifier = method.ContainingType.DeclaredAccessibility switch
+            string classAccessModifier;
+            switch(method.ContainingType.DeclaredAccessibility)
             {
-                Accessibility.Internal => "internal",
-                Accessibility.Public => "public",
-                _ => ""
+                case Accessibility.Internal:
+                    classAccessModifier = "internal";
+                    break;
+                case Accessibility.Public:
+                    classAccessModifier = "public";
+                    break;
+                default:
+                    classAccessModifier = "";
+                    break;
             };
 
             string outNamespace = method.ContainingNamespace.ToString();
@@ -141,13 +156,13 @@ namespace CQRSToolkit.DependencyInjection.Generator
             string accessModifier = "internal";
 
             options.TryGetValue("build_property.CQRSToolkit_DIGen_AccessModifier", out var msBuildAccessModifier);
-            if (msBuildAccessModifier is not null && msBuildAccessModifier.Trim() != "")
+            if (msBuildAccessModifier != null && msBuildAccessModifier.Trim() != "")
             {
                 accessModifier = msBuildAccessModifier;
             }
 
             options.TryGetValue("CQRSToolkit_DIGen_AccessModifier", out var editorConfigAccessModifier);
-            if (editorConfigAccessModifier is not null && editorConfigAccessModifier.Trim() != "")
+            if (editorConfigAccessModifier != null && editorConfigAccessModifier.Trim() != "")
             {
                 accessModifier = editorConfigAccessModifier;
             }
@@ -160,13 +175,13 @@ namespace CQRSToolkit.DependencyInjection.Generator
             string className = "CQRSServiceExtensions";
 
             options.TryGetValue("build_property.CQRSToolkit_DIGen_ClassName", out var msBuildClassName);
-            if (msBuildClassName is not null && msBuildClassName.Trim() != "")
+            if (msBuildClassName != null && msBuildClassName.Trim() != "")
             {
                 className = msBuildClassName;
             }
 
             options.TryGetValue("CQRSToolkit_DIGen_ClassName", out var editorConfigClassName);
-            if (editorConfigClassName is not null && editorConfigClassName.Trim() != "")
+            if (editorConfigClassName != null && editorConfigClassName.Trim() != "")
             {
                 className = editorConfigClassName;
             }
@@ -179,13 +194,13 @@ namespace CQRSToolkit.DependencyInjection.Generator
             string outNamespace = "CQRSToolkit.DependencyInjection";
 
             options.TryGetValue("build_property.CQRSToolkit_DIGen_Namespace", out var msBuildNamespace);
-            if (msBuildNamespace is not null && msBuildNamespace.Trim() != "")
+            if (msBuildNamespace != null && msBuildNamespace.Trim() != "")
             {
                 outNamespace = msBuildNamespace;
             }
 
             options.TryGetValue("build_property.CQRSToolkit_DIGen_Namespace", out var editorConfigNamespace);
-            if (editorConfigNamespace is not null && editorConfigNamespace.Trim() != "")
+            if (editorConfigNamespace != null && editorConfigNamespace.Trim() != "")
             {
                 outNamespace = editorConfigNamespace;
             }

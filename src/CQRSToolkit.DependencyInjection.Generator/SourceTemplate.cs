@@ -17,7 +17,7 @@ namespace CQRSToolkit.DependencyInjection.Generator
                                  "\t\t{5} static partial Microsoft.Extensions.DependencyInjection.IServiceCollection {6}(this Microsoft.Extensions.DependencyInjection.IServiceCollection {7}, Microsoft.Extensions.DependencyInjection.ServiceLifetime {8})\n" +
                                  "\t\t{{\n" +
                                  "{9}\n" +
-                                 "\t\t\treturn services;\n" +
+                                 "\t\t\treturn {7};\n" +
                                  "\t\t}}\n" +
                                  "\t}}\n" +
                                  "}}";
@@ -32,7 +32,7 @@ namespace CQRSToolkit.DependencyInjection.Generator
                                  "\t\t{5} static Microsoft.Extensions.DependencyInjection.IServiceCollection {6}(this Microsoft.Extensions.DependencyInjection.IServiceCollection {7}, Microsoft.Extensions.DependencyInjection.ServiceLifetime {8})\n" +
                                  "\t\t{{\n" +
                                  "{9}\n" +
-                                 "\t\t\treturn services;\n" +
+                                 "\t\t\treturn {7};\n" +
                                  "\t\t}}\n" +
                                  "\t}}\n" +
                                  "}}";

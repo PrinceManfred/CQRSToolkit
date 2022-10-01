@@ -1,28 +1,37 @@
 ﻿using BasicAPI.Features;
 using CQRSToolkit.DependencyInjection;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace CQRSToolkit;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddThemBois();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public static class CQRSToolkit
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public static WebApplication CreateCQRSToolkitApp()
+            => WebApplication
+                .CreateBuilder(args)
+                .RegisterServices()
+                .UseAuthorization()
+                .MapControllers()
+                .Build()
+  //TODO: Swagger
+                .Run();
+
+    public static WebApplicationBuilder RegisterServices(this WebApplicationBuilder webApplicationBuilder)
+    {
+        webApplicationBuilder.Services.AddControllers();
+        webApplicationBuilder.Services.AddEndpointsApiExplorer();
+        webApplicationBuilder.Services.AddSwaggerGen();
+        webApplicationBuilder.Services.AddThemBois();
+        return webApplicationBuilder;
+    }
+
+
+    //.UseSwagger
+    //.UseSwaggerUI
+/*    public static WebApplication ConfigureEnvironment(this WebApplicationBuilder webApplicationBuilder)
+    {
+
+    }
+*/
+
 }
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
 

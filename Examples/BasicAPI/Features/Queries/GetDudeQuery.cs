@@ -4,11 +4,13 @@ using CQRSToolkit;
 
 namespace BasicAPI.Features.Queries
 {
-    public class GetDudeQuery : IQuery<Dude>
+    public class GetDudeQuery : IQuery<GetDude, Dude>
     {
-        public static readonly GetDudeQuery Value = new GetDudeQuery();
 
-        private GetDudeQuery() { }
+        public Task<Dude> Execute(GetDude dude)
+        {
+            return Task.FromResult<Dude>(new Dude { FirstName = "The", LastName = "Dude" });
+        }
     }
 }
 

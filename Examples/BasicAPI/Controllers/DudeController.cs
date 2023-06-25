@@ -15,40 +15,19 @@ namespace BasicAPI.Controllers
     [ApiController]
     public class DudeController : ControllerBase
     {
-        // GET: api/asdf
         [HttpGet]
         public async Task<ActionResult<Dude>> Get(
-            [FromServices] IQueryHandler<GetDudeQuery, Dude> getDudeQueryHandler)
+            [FromServices] IQuery<GetDude, Dude> getDudeQuery)
         {
-            return Ok(await getDudeQueryHandler.Handle(GetDudeQuery.Value));
+            return Ok(await getDudeQuery.Execute(GetDude.Value));
         }
 
-        // GET: api/asdf/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST: api/asdf
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] SetDudeCommand command,
-            [FromServices] ICommandHandler<SetDudeCommand> setDudeCommandHandler)
+        public async Task<ActionResult> Post([FromBody] SetDude dude,
+            [FromServices] ICommand<SetDude> setDudeCommand)
         {
-            await setDudeCommandHandler.Handle(command);
+            await setDudeCommand.Execute(dude);
             return Ok();
-        }
-
-        // PUT: api/asdf/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/asdf/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

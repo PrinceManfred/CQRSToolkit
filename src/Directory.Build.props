@@ -1,11 +1,11 @@
 <Project>
- <PropertyGroup>
-    <Authors>PrinceManfred</Authors>
-    <Version>0.1.1.1</Version>
-    <Copyright>Copyright Travis Carter</Copyright>
-    <PackageProjectUrl>https://github.com/PrinceManfred/CQRSToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/PrinceManfred/CQRSToolkit</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
- </PropertyGroup>
+    <PropertyGroup>
+        <Authors>PrinceManfred</Authors>
+        <Version>0.1.1.1</Version>
+        <Copyright>Copyright Travis Carter</Copyright>
+        <PackageProjectUrl>https://github.com/PrinceManfred/CQRSToolkit</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/PrinceManfred/CQRSToolkit</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    </PropertyGroup>
 </Project>

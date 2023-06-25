@@ -1,4 +1,5 @@
-﻿using BasicAPI.Features;
+﻿using BasicAPI;
+using BasicAPI.Features;
 using CQRSToolkit.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddThemBois();
+builder.Services.AddCqrs();
+//builder.Services.AddThemBois();
 
 var app = builder.Build();
 

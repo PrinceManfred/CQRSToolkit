@@ -1,10 +1,16 @@
-﻿using BasicAPI.Models;
+﻿using System;
+using BasicAPI.Models;
 using CQRSToolkit;
 
 namespace BasicAPI.Features.Queries
 {
-    public class GetAllDudesQuery: IQuery<Dude>
+    public class GetAllDudesQuery : IQuery<GetAllDudes, Dude>
     {
-        public string? Huh { get; set; }
+
+        public Task<Dude> Execute(GetAllDudes dude)
+        {
+            return Task.FromResult<Dude>(new Dude { FirstName = "The", LastName = "Dude" });
+        }
     }
 }
+

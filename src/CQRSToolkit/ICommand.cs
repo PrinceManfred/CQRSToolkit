@@ -1,8 +1,17 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
+
 namespace CQRSToolkit
 {
-    public interface ICommand<out T>
+    [PublicAPI]
+    public interface ICommand<in TCommand>
     {
+        Task Execute(TCommand command);
+    }
+
+    [PublicAPI]
+    public interface ICommand<in TCommand, TResponse>
+    {
+        Task<TResponse> Execute(TCommand command);
     }
 }
-

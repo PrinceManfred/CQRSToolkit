@@ -1,8 +1,11 @@
-﻿using System;
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
+
 namespace CQRSToolkit
 {
-    public interface IQuery<T>
+    [PublicAPI]
+    public interface IQuery<in TQuery, TResponse>
     {
+        Task<TResponse> Execute(TQuery dudeParams);
     }
 }
-
